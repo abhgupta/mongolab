@@ -6,7 +6,7 @@ Cartridge-Vendor: mongolab
 Display-Name: MongoLab 1.0
 Description: "Sets up your connection to MongoLab Mongo As A Service."
 Version: '2.2'
-Versions: ['2.2', '2.4']
+Versions: ['2.2']
 License: ASL 2.0
 Vendor: MongoLab
 Categories:
