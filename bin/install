@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#
+# Checking if the user has added the settings.py file in the git repo
+#
+if [ ! -f "${OPENSHIFT_REPO_DIR}/.openshift/mongolab/url" ]
+then
+    client_error ""
+    client_error "Missing url file:  ${OPENSHIFT_REPO_DIR}.openshift/mongolab/url"
+    client_error "The url file contains your complete database url from MongoLab."
+    client_error ""
+    exit 137
+fi
+
+cat "${OPENSHIFT_REPO_DIR}/.openshift/mongolab/url" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_URL
+
+client_result ""
+client_result "MongoLab added. "
+client_result ""
+
+
