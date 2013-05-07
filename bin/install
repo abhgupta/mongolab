@@ -2,7 +2,7 @@
 
 source $OPENSHIFT_CARTRIDGE_SDK_BASH
 
-$OPENSHIFT_MONGODB_DIR/bin/api
+$OPENSHIFT_MONGODB_DIR/bin/provisioner
 if [ $? -ne 0 ]
 then
     client_error "Failed to call MongoLab API"

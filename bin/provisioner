@@ -1,0 +1,115 @@
+#!/usr/bin/env oo-ruby
+# -*- ruby -*-
+
+# echo "$OPENSHIFT_MONGODB_DB_USERNAME" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_USERNAME
+# echo "$OPENSHIFT_MONGODB_DB_PASSWORD" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_PASSWORD
+# echo "$OPENSHIFT_MONGODB_DB_HOST"     > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_HOST
+# echo "$OPENSHIFT_MONGODB_DB_NAME"     > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_NAME
+# echo "$OPENSHIFT_MONGODB_DB_URL"      > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_URL
+
+require 'json'
+
+$cartridgeShortname = 'MONGODB'
+$envDir = ENV["OPENSHIFT_#{$cartridgeShortname}_DIR"]
+$envPath = "#{$envDir}/env/"
+$userConfigFilepath = "#{ENV['OPENSHIFT_REPO_DIR']}/.openshift/mongolab/config.json"
+$logClientMessage = 'CLIENT_MESSAGE:'
+$logClientResult = 'CLIENT_RESULT:'
+
+def getUserConfig
+  config = nil
+  begin
+    config = JSON.load(File.open($userConfigFilepath).read())
+    log($logClientMessage, "Found config file with contents:\n #{config}\nThanks!")
+  rescue => e
+    log($logClientMessage, "MongoLab needs more information.\nPlease provide a json config file at #{$userConfigFilepath} containing '{\"plan\": \"sandbox\"}', preferrably one that doesn't throw:\n#{e}")
+    #Consider generating default instead of failing.
+  end
+  return config
+end
+
+def setEnvVar(varName, varValue)
+  @fileName = $envPath + varName
+  begin
+    File.open(@fileName, 'w') { |f| f.write(varValue) }
+  rescue
+    log($logClientMessage, "Could not set env var #{varName} at #{@fileName} to value: #{varValue}")
+  end
+end
+
+def getEnvVar(varName)
+  @fileName = $envPath + varName
+  value = None
+  begin
+    file = File.open(@fileName, "r")
+    value = file.read()
+  rescue
+    log($logClientMessage, "Could not get a requested environment variable, #{varName}, at #{@fileName}")
+    return None
+  end
+  return value
+end
+
+def getConfig
+  
+end
+
+def log(channel, message)
+  puts channel + ' ' + message
+end
+
+###################
+# provision
+# plan - plan shortname
+#
+# Creates a new mongolab account and database
+###################
+def provision() 
+  log($logClientMessage, "Initiating provision")
+  
+  config = getUserConfig()
+  if !config.nil?
+    log($logClientMessage, "Creating a MongoLab db of type: #{config['plan']}")
+
+    # assemble proper inputs
+    @partnerName = 'openshift'
+    @partnerPassword = 'password'
+    @appId = 'blah'
+    @plan = config['plan']
+    
+    result = doProvision(@partnerName, @partnerPassword, @appId, @plan)
+
+    log($logClientMessage, "Provisioning complete")
+  end
+end
+
+def doProvision(partnerName, partnerPassword, appId, plan)
+  
+  account = doAccountProvision(partnerName, partnerPassword, appId)
+  if account.nil?
+    log($logClientMessage, "Failed to provision account")
+    return 1
+  else
+    database = doDatabaseProvision(account, partnerName, partnerPassword, plan)
+    if database.nil?
+      log($logClientMessage, "Failed to provision database")
+      return 1
+    end
+  end 
+
+  setEnvVar('OPENSHIFT_MONGODB_DB_URL', database['uri'])
+  return 0
+end
+
+def doAccountProvision(partnerName, partnerPassword, appId) 
+  return { "name" => "acme_app",
+    "adminUser" => { "email" => "user@gmail.com" } }
+end
+
+def doDatabaseProvision(account, partnerName, partnerPassword, plan)
+  return { "name" => "myDatabase",
+    "uri" => "mongodb://user:1234@ds012345.mongolab.com:12345/myDatabase" }
+end
+
+provision()
+
