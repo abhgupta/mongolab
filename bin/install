@@ -1,10 +1,13 @@
 #!/bin/bash
 
-#
-# Checking if the user has added the settings.py file in the git repo
-#
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
 
 echo "HERE IS WHERE THE API WOULD BE CALLED THAT POPULATES THE VARIABLES BELOW"
+if [ $? -ne 0 ]
+then
+    client_error "Failed to call MongoLab API"
+    exit 137
+fi
 
 echo "$OPENSHIFT_MONGODB_DB_USERNAME" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_USERNAME
 echo "$OPENSHIFT_MONGODB_DB_PASSWORD" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_PASSWORD
