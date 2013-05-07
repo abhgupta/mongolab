@@ -1,0 +1,77 @@
+#!/bin/ruby
+
+# echo "$OPENSHIFT_MONGODB_DB_USERNAME" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_USERNAME
+# echo "$OPENSHIFT_MONGODB_DB_PASSWORD" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_PASSWORD
+# echo "$OPENSHIFT_MONGODB_DB_HOST"     > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_HOST
+# echo "$OPENSHIFT_MONGODB_DB_NAME"     > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_NAME
+# echo "$OPENSHIFT_MONGODB_DB_URL"      > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_URL
+
+$cartridgeShortname = 'MONGODB'
+$envDir = ENV["$OPENSHIFT_#{$cartridgeShortname}_DIR"]
+$envPath = "#{$envDir}/env/"
+$logClientMessage = 'CLIENT_MESSAGE:'
+$logClientResult = 'CLIENT_RESULT:'
+
+def setEnvVar(varName, varValue)
+    @fileName = $envPath + varName
+    begin
+      File.open(@fileName, 'w') { |f| f.write(varValue) }
+    rescue
+      log($logClientMessage, "Could not set env var #{varName} at #{@fileName} to value: #{varValue}")
+    end
+end
+
+def getEnvVar(varName)
+    @fileName = $envPath + varName
+    value = None
+    begin
+      file = File.open(@fileName, "r")
+      value = file.read()
+    rescue
+      log($logClientMessage, "Could not get a requested environment variable, #{varName}, at #{@fileName}")
+      return None
+    end
+    return value
+end
+
+def getConfig
+
+end
+
+def log(channel, message)
+    puts channel + ' ' + message
+end
+
+###################
+# provision
+# plan - plan shortname
+#
+# Creates a new mongolab account and database
+###################
+def provision(plan) 
+    log($logClientMessage, "Initiating provision")
+
+    # assemble proper inputs
+    @partnerName = 'openshift'
+    @partnerPassword = 'password'
+
+    @appId = 'blah'
+    @plan = 'sandbox'
+
+    setEnvVar('ERIC', 'worky')
+
+    #result = doProvision(@partnerName, @partnerPassword, @appId, @plan)
+end
+
+def doProvision(partnerName, partnerPassword, appId, plan)
+    return None
+end
+
+def doAccountProvision(partnerName, partnerPassword, appId) 
+    return { "name" => "acme_app",
+      "adminUser" => { "email" => "user@gmail.com" } }
+end
+
+begin
+  provision("free")
+end
