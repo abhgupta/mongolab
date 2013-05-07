@@ -34,5 +34,3 @@ Cart-Data:
 Publishes:
   publish-nosql-db-connection-info:
     Type: "ENV:NET_TCP:nosqldb:connection-info"
-
-
