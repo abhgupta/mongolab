@@ -1,4 +1,5 @@
-#!/bin/ruby
+#!/bin/env/ruby
+#!/usr/bin/env oo-ruby
 
 # echo "$OPENSHIFT_MONGODB_DB_USERNAME" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_USERNAME
 # echo "$OPENSHIFT_MONGODB_DB_PASSWORD" > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_PASSWORD
@@ -7,39 +8,47 @@
 # echo "$OPENSHIFT_MONGODB_DB_URL"      > $OPENSHIFT_MONGODB_DIR/env/OPENSHIFT_MONGODB_DB_URL
 
 $cartridgeShortname = 'MONGODB'
-$envDir = ENV["$OPENSHIFT_#{$cartridgeShortname}_DIR"]
+$envDir = ENV["OPENSHIFT_#{$cartridgeShortname}_DIR"]
 $envPath = "#{$envDir}/env/"
+$userConfigFilepath = ENV['OPENSHIFT_REPO_DIR'] + '/.openshift/mongolab/config.json'
 $logClientMessage = 'CLIENT_MESSAGE:'
 $logClientResult = 'CLIENT_RESULT:'
 
+def getUserConfig
+  begin
+    config = File.open($userConfigFilepath).read()
+    log($logClientMessage, "Found config file with contents:\n #{config}\n, thanks!")
+  rescue
+    log($logClientMessage, "MongoLab needs more information.\nPlease provide a json config file: #{$userConfigFilepath} containing '{\"plan\": \"free\"}'")
+
 def setEnvVar(varName, varValue)
-    @fileName = $envPath + varName
-    begin
-      File.open(@fileName, 'w') { |f| f.write(varValue) }
-    rescue
-      log($logClientMessage, "Could not set env var #{varName} at #{@fileName} to value: #{varValue}")
-    end
+  @fileName = $envPath + varName
+  begin
+    File.open(@fileName, 'w') { |f| f.write(varValue) }
+  rescue
+    log($logClientMessage, "Could not set env var #{varName} at #{@fileName} to value: #{varValue}")
+  end
 end
 
 def getEnvVar(varName)
-    @fileName = $envPath + varName
-    value = None
-    begin
-      file = File.open(@fileName, "r")
-      value = file.read()
-    rescue
-      log($logClientMessage, "Could not get a requested environment variable, #{varName}, at #{@fileName}")
-      return None
-    end
-    return value
+  @fileName = $envPath + varName
+  value = None
+  begin
+    file = File.open(@fileName, "r")
+    value = file.read()
+  rescue
+    log($logClientMessage, "Could not get a requested environment variable, #{varName}, at #{@fileName}")
+    return None
+  end
+  return value
 end
 
 def getConfig
-
+  
 end
 
 def log(channel, message)
-    puts channel + ' ' + message
+  puts channel + ' ' + message
 end
 
 ###################
@@ -49,29 +58,30 @@ end
 # Creates a new mongolab account and database
 ###################
 def provision(plan) 
-    log($logClientMessage, "Initiating provision")
-
-    # assemble proper inputs
-    @partnerName = 'openshift'
-    @partnerPassword = 'password'
-
-    @appId = 'blah'
-    @plan = 'sandbox'
-
-    setEnvVar('ERIC', 'worky')
-
-    #result = doProvision(@partnerName, @partnerPassword, @appId, @plan)
+  log($logClientMessage, "Initiating provision")
+  
+  config = getUserConfig()
+  # assemble proper inputs
+  @partnerName = 'openshift'
+  @partnerPassword = 'password'
+  
+  @appId = 'blah'
+  @plan = 'sandbox'
+  
+  setEnvVar('ERIC', 'worky')
+  
+  #result = doProvision(@partnerName, @partnerPassword, @appId, @plan)
+  log($logClientMessage, "Provisioning complete")
 end
 
 def doProvision(partnerName, partnerPassword, appId, plan)
-    return None
+  return None
 end
 
 def doAccountProvision(partnerName, partnerPassword, appId) 
-    return { "name" => "acme_app",
-      "adminUser" => { "email" => "user@gmail.com" } }
+  return { "name" => "acme_app",
+    "adminUser" => { "email" => "user@gmail.com" } }
 end
 
-begin
-  provision("free")
-end
+provision("free")
+
