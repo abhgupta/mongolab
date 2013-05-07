@@ -2,5 +2,5 @@
 
 if [ ! -f "${OPENSHIFT_REPO_DIR}/.openshift/markers/inhibit_mongolab_teardown" ]
 then
-    echo "HERE IS WHERE THE API WOULD BE CALLED THAT POPULATES THE VARIABLES BELOW"
+    true
 fi

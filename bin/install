@@ -2,7 +2,7 @@
 
 source $OPENSHIFT_CARTRIDGE_SDK_BASH
 
-echo "HERE IS WHERE THE API WOULD BE CALLED THAT POPULATES THE VARIABLES BELOW"
+true
 if [ $? -ne 0 ]
 then
     client_error "Failed to call MongoLab API"
