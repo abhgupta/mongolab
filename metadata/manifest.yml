@@ -4,6 +4,9 @@ Cartridge-Version: '1.0.0'
 Cartridge-Versions: ['1.0.1']
 Cartridge-Vendor: mongolab
 Display-Name: MongoLab 1.0
+Provides:
+  - 'mongolab'
+  - 'mongolab-2.2'
 Description: "Sets up your connection to MongoLab Mongo As A Service."
 Version: '2.2'
 Versions: ['2.2']
